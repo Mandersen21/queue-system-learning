@@ -24,6 +24,7 @@ with open("./dataNew.csv") as f:
     dataSorted = []
     patientList = []
     
+    fasttrack = 0
     regular_duration = 0
     fasttrack_duration = 0
     triage_duration = 0
@@ -34,6 +35,7 @@ with open("./dataNew.csv") as f:
     start = ''
     end = ''
     dayOfWeek = ''
+    track = ''
       
     for row in reader:
         data.append(row)
@@ -53,14 +55,33 @@ with open("./dataNew.csv") as f:
                 #print('New patient found', index +1)
                 patientList = []
                 
-                value = start,age,triage,dayOfWeek.weekday(),code,triage_duration,regular_duration,fasttrack_duration,treatment_duration,end
-                #print(value)
-                dataSorted.append(value)
+                date = ''
+                
+                if (dayOfWeek.weekday() == 0):
+                    date = 'Mon'
+                if (dayOfWeek.weekday() == 1):
+                    date = 'Tue'
+                if (dayOfWeek.weekday() == 2):
+                    date = 'Wed'
+                if (dayOfWeek.weekday() == 3):
+                    date = 'Thu'
+                if (dayOfWeek.weekday() == 4):
+                    date = 'Fri'
+                if (dayOfWeek.weekday() == 5):
+                    date = 'Sat'
+                if (dayOfWeek.weekday() == 6):
+                    date = 'Sun'
+                
+                #value = start,age,triage,date,code,triage_duration,regular_duration,fasttrack_duration,treatment_duration,end
+                value = start,age,triage,date,code,track,regular_duration
+                if (fasttrack == 0):
+                    dataSorted.append(value)
 
                 regular_duration = 0
                 fasttrack_duration = 0
                 triage_duration = 0
                 treatment_duration = 0
+                fasttrack = 0
          
         if (val[8] == 'AHH AKAHVH Vente skade'):
             #print('VenteSkade: ', val[7])
@@ -68,6 +89,7 @@ with open("./dataNew.csv") as f:
         if (val[8] == 'AHH AKAHVH FT1'):
             #print('Fasttrack: ', val[7])
             fasttrack_duration = int(val[7]) + int(fasttrack_duration)
+            fasttrack = 1
         if (val[8] == 'AHH AKAHVH Triage'):
             #print('Triage: ', val[7])
             triage_duration = int(val[7]) + int(triage_duration)
@@ -82,12 +104,29 @@ with open("./dataNew.csv") as f:
         end = val[10]
         dateString = val[9].split()[0].split('/')
         dayOfWeek = datetime(int(dateString[0]), int(dateString[1]), int(dateString[2]))
+        track = val[4]
         
         if (index + 1 == dataLength):
-            value = start,age,triage,dayOfWeek.weekday(),code,triage_duration,regular_duration,fasttrack_duration,treatment_duration,end
-            #print(value)
-            dataSorted.append(value)
-        
+            #value = start,age,triage,dayOfWeek.weekday(),code,triage_duration,regular_duration,fasttrack_duration,treatment_duration,end
+            date = ''
+                
+            if (dayOfWeek.weekday() == 0):
+                date = 'Mon'
+            if (dayOfWeek.weekday() == 1):
+                date = 'Tue'
+            if (dayOfWeek.weekday() == 2):
+                date = 'Wed'
+            if (dayOfWeek.weekday() == 3):
+                date = 'Thu'
+            if (dayOfWeek.weekday() == 4):
+                date = 'Fri'
+            if (dayOfWeek.weekday() == 5):
+                date = 'Sat'
+            if (dayOfWeek.weekday() == 6):
+                date = 'Sun'
+            value = start,age,triage,date,code,track,regular_duration
+            if (fasttrack == 0):
+                dataSorted.append(value)
         patientOld = patientId
     
     dataSorted = sorted(dataSorted)

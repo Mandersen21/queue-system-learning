@@ -67,12 +67,15 @@ with open("./data.csv") as f:
                 
                 patientId = row[0]
                 patientAge = row[1]
+                
             
-                if ('VURDERINGSSPOR' in row[2]):
-                    track = 0;
-            
-                if ('BEHANDLERSPOR SKADE' in row[2]):
-                    track = 1;
+# =============================================================================
+#                 if ('VURDERINGSSPOR' in row[2]):
+#                     track = 0;
+#             
+#                 if ('BEHANDLERSPOR SKADE' in row[2]):
+#                     track = 1;
+# =============================================================================
             
                 start = row[3]
                 end = row[4]
@@ -82,17 +85,21 @@ with open("./data.csv") as f:
                 eventDuration = row[9]
                 eventRoom = row[10]
                 eventTimeEnd = row[12]
+                triage = row[16]
+                track = row[2]
             
-                if ('blÃ¥' in row[16]):
-                    triage = 5
-                if ('grÃ¸n' in row[16]):
-                    triage = 4
-                if ('gul' in row[16]):
-                    triage = 3
-                if ('orange' in row[16]):
-                    triage = 2
-                if ('rÃ¸d' in row[16]):
-                    triage = 1
+# =============================================================================
+#                 if ('blÃ¥' in row[16]):
+#                     triage = 5
+#                 if ('grÃ¸n' in row[16]):
+#                     triage = 4
+#                 if ('gul' in row[16]):
+#                     triage = 3
+#                 if ('orange' in row[16]):
+#                     triage = 2
+#                 if ('rÃ¸d' in row[16]):
+#                     triage = 1
+# =============================================================================
                  
                 value = patientId,patientAge,triage,actionCode,track,eventType,eventTime,eventDuration,eventRoom,start,end
                 #value = start,end
