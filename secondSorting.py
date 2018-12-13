@@ -24,6 +24,7 @@ with open("./dataNew.csv") as f:
     dataSorted = []
     patientList = []
     
+    regular = 0
     fasttrack = 0
     regular_duration = 0
     fasttrack_duration = 0
@@ -36,6 +37,7 @@ with open("./dataNew.csv") as f:
     end = ''
     dayOfWeek = ''
     track = ''
+    timeOfDay = -1
       
     for row in reader:
         data.append(row)
@@ -73,8 +75,8 @@ with open("./dataNew.csv") as f:
                     date = 'Sun'
                 
                 #value = start,age,triage,date,code,triage_duration,regular_duration,fasttrack_duration,treatment_duration,end
-                value = start,age,triage,date,code,track,regular_duration
-                if (fasttrack == 0):
+                value = age,triage,date,timeOfDay,track,regular_duration
+                if (fasttrack == 0 and regular == 1):
                     dataSorted.append(value)
 
                 regular_duration = 0
@@ -82,10 +84,12 @@ with open("./dataNew.csv") as f:
                 triage_duration = 0
                 treatment_duration = 0
                 fasttrack = 0
+                regular = 0
          
         if (val[8] == 'AHH AKAHVH Vente skade'):
             #print('VenteSkade: ', val[7])
             regular_duration = int(val[7]) + int(regular_duration)
+            regular = 1
         if (val[8] == 'AHH AKAHVH FT1'):
             #print('Fasttrack: ', val[7])
             fasttrack_duration = int(val[7]) + int(fasttrack_duration)
@@ -103,7 +107,9 @@ with open("./dataNew.csv") as f:
         start = val[9]
         end = val[10]
         dateString = val[9].split()[0].split('/')
+        timeString = val[9].split()[1].split(':')
         dayOfWeek = datetime(int(dateString[0]), int(dateString[1]), int(dateString[2]))
+        timeOfDay = timeString[0]
         track = val[4]
         
         if (index + 1 == dataLength):
@@ -124,8 +130,8 @@ with open("./dataNew.csv") as f:
                 date = 'Sat'
             if (dayOfWeek.weekday() == 6):
                 date = 'Sun'
-            value = start,age,triage,date,code,track,regular_duration
-            if (fasttrack == 0):
+            value = age,triage,date,timeOfDay,track,regular_duration
+            if (fasttrack == 0 and regular == 1):
                 dataSorted.append(value)
         patientOld = patientId
     

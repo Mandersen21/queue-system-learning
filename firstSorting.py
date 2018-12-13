@@ -36,7 +36,7 @@ def Remove(duplicate):
 
 csvfileSorted = "./dataNew.csv"
 
-with open("./data.csv") as f:
+with open("./Data.csv") as f:
     reader = csv.reader(f)
     next(reader) # skip header
          
