@@ -38,6 +38,10 @@ with open("./dataNew.csv") as f:
     dayOfWeek = ''
     track = ''
     timeOfDay = -1
+    duration = 0
+    flytind = ''
+    flytud = ''
+    patient = ''
       
     for row in reader:
         data.append(row)
@@ -74,9 +78,15 @@ with open("./dataNew.csv") as f:
                 if (dayOfWeek.weekday() == 6):
                     date = 'Sun'
                 
+                if (triage == 'orange'):
+                    regular_duration = 0
+                if (triage == 'rÃ¸d'):
+                    regular_duration = 0
+                
                 #value = start,age,triage,date,code,triage_duration,regular_duration,fasttrack_duration,treatment_duration,end
-                value = age,triage,date,timeOfDay,track,regular_duration
-                if (fasttrack == 0 and regular == 1):
+                #value = age,triage,date,timeOfDay,track,regular_duration
+                value = flytind,flytud,end,triage,date,int(timeOfDay),code,age,track,regular_duration,patient
+                if (regular == 1 and fasttrack == 0 and triage != 'orange' and triage != 'rÃ¸d'):
                     dataSorted.append(value)
 
                 regular_duration = 0
@@ -85,11 +95,20 @@ with open("./dataNew.csv") as f:
                 treatment_duration = 0
                 fasttrack = 0
                 regular = 0
+                duration = 0
          
         if (val[8] == 'AHH AKAHVH Vente skade'):
             #print('VenteSkade: ', val[7])
             regular_duration = int(val[7]) + int(regular_duration)
             regular = 1
+            patient = val[0]
+            
+            if (val[5] == 'FLYT IND'):
+                flytind = val[6]
+                
+            if (val[5] == 'FLYT UD'):
+                flytud = val[6]
+            
         if (val[8] == 'AHH AKAHVH FT1'):
             #print('Fasttrack: ', val[7])
             fasttrack_duration = int(val[7]) + int(fasttrack_duration)
@@ -130,12 +149,20 @@ with open("./dataNew.csv") as f:
                 date = 'Sat'
             if (dayOfWeek.weekday() == 6):
                 date = 'Sun'
-            value = age,triage,date,timeOfDay,track,regular_duration
-            if (fasttrack == 0 and regular == 1):
+            
+            if (triage == 'orange'):
+                regular_duration = 0
+            if (triage == 'rÃ¸d'):
+                regular_duration = 0
+            
+            #value = age,triage,date,timeOfDay,track,regular_duration
+            value = flytind,flytud,end,triage,date,int(timeOfDay),code,age,track,regular_duration,patient
+            if (regular == 1 and fasttrack and triage != 'orange' and triage != 'rÃ¸d'):
                 dataSorted.append(value)
         patientOld = patientId
     
-    dataSorted = sorted(dataSorted)
+    dataSorted = sorted(dataSorted,reverse=True)
+    #dataSorted = sorted(dataSorted)
     
     with open(csvfileSorted, "w") as output:
         writer = csv.writer(output, lineterminator='\n')
