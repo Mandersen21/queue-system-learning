@@ -8,15 +8,17 @@ import seaborn as sns
 
 import csv
 from operator import attrgetter
-from datetime import datetime
+from datetime import datetime, date, time, timedelta
 
 #import visuals as vs
 
 #matplotlib inline
 
 csvfileSorted = "./dataNewSorted.csv"
+#csvfileSorted = "./testNew2.csv"
 
 with open("./dataNew.csv") as f:
+#with open("./testNew.csv") as f:
     reader = csv.reader(f)
     #next(reader) # skip header
          
@@ -47,7 +49,7 @@ with open("./dataNew.csv") as f:
         data.append(row)
     
     dataLength = len(data)
-    
+        
     patientOld = ''
 
     for index, val in enumerate(data):
@@ -78,17 +80,26 @@ with open("./dataNew.csv") as f:
                 if (dayOfWeek.weekday() == 6):
                     date = 'Sun'
                 
-                if (triage == 'orange'):
-                    regular_duration = 0
-                if (triage == 'rÃ¸d'):
-                    regular_duration = 0
+                if (len(flytind) > 0):
+                    dateString = flytind.split()[0].replace('/', '-').split('-')
+                    timeString = flytind.split()[1].split(':') 
+                    flytind = datetime(int(dateString[0]), int(dateString[1]), int(dateString[2]), int(timeString[0]), int(timeString[1]), int(timeString[2]))
                 
-                #value = start,age,triage,date,code,triage_duration,regular_duration,fasttrack_duration,treatment_duration,end
-                #value = age,triage,date,timeOfDay,track,regular_duration
-                value = flytind,flytud,end,triage,date,int(timeOfDay),code,age,track,regular_duration,patient
+                if (len(flytud) > 0):
+                    dateString = flytud.split()[0].replace('/', '-').split('-')
+                    timeString = flytud.split()[1].split(':')   
+                    flytud = datetime(int(dateString[0]), int(dateString[1]), int(dateString[2]), int(timeString[0]), int(timeString[1]), int(timeString[2]))
+                
                 if (regular == 1 and fasttrack == 0 and triage != 'orange' and triage != 'rÃ¸d'):
-                    dataSorted.append(value)
-
+    
+                    if (len(str(flytud)) == 0):
+                        flytud = flytind + timedelta(minutes=int(regular_duration))
+                        flytud = datetime(flytud.year, flytud.month, flytud.day, flytud.hour, flytud.minute, flytud.second)
+                     
+                    if (flytud > flytind):
+                        value = flytind,flytud,end,triage,date,int(timeOfDay),code,age,track,regular_duration,patient
+                        dataSorted.append(value)
+                         
                 regular_duration = 0
                 fasttrack_duration = 0
                 triage_duration = 0
@@ -96,17 +107,20 @@ with open("./dataNew.csv") as f:
                 fasttrack = 0
                 regular = 0
                 duration = 0
+                flytind = ''
+                flytud = ''
          
         if (val[8] == 'AHH AKAHVH Vente skade'):
-            #print('VenteSkade: ', val[7])
-            regular_duration = int(val[7]) + int(regular_duration)
-            regular = 1
-            patient = val[0]
             
-            if (val[5] == 'FLYT IND'):
+            if (regular_duration == 0):
+                regular_duration = int(val[7]) + int(regular_duration)
+                patient = val[0]
+            
+            if (val[5] == 'FLYT IND' and len(flytind) == 0):  
                 flytind = val[6]
+                regular = 1
                 
-            if (val[5] == 'FLYT UD'):
+            if (val[5] == 'FLYT UD' and len(flytud) == 0):
                 flytud = val[6]
             
         if (val[8] == 'AHH AKAHVH FT1'):
@@ -132,7 +146,7 @@ with open("./dataNew.csv") as f:
         track = val[4]
         
         if (index + 1 == dataLength):
-            #value = start,age,triage,dayOfWeek.weekday(),code,triage_duration,regular_duration,fasttrack_duration,treatment_duration,end
+            
             date = ''
                 
             if (dayOfWeek.weekday() == 0):
@@ -149,20 +163,29 @@ with open("./dataNew.csv") as f:
                 date = 'Sat'
             if (dayOfWeek.weekday() == 6):
                 date = 'Sun'
+                   
+            if (regular == 1 and fasttrack == 0 and triage != 'orange' and triage != 'rÃ¸d'):
+                
+                dateString = flytind.split()[0].replace('/', '-').split('-')
+                timeString = flytind.split()[1].split(':')   
+                flytind = datetime(int(dateString[0]), int(dateString[1]), int(dateString[2]), int(timeString[0]), int(timeString[1]), int(timeString[2]))
             
-            if (triage == 'orange'):
-                regular_duration = 0
-            if (triage == 'rÃ¸d'):
-                regular_duration = 0
-            
-            #value = age,triage,date,timeOfDay,track,regular_duration
-            value = flytind,flytud,end,triage,date,int(timeOfDay),code,age,track,regular_duration,patient
-            if (regular == 1 and fasttrack and triage != 'orange' and triage != 'rÃ¸d'):
-                dataSorted.append(value)
+                if (len(flytud) > 0):
+                    dateString = flytud.split()[0].replace('/', '-').split('-')
+                    timeString = flytud.split()[1].split(':')   
+                    flytud = datetime(int(dateString[0]), int(dateString[1]), int(dateString[2]), int(timeString[0]), int(timeString[1]), int(timeString[2]))
+                
+                if (len(str(flytud)) == 0):
+                    flytud = flytind + timedelta(minutes=int(regular_duration))
+                    flytud = datetime(flytud.year, flytud.month, flytud.day, flytud.hour, flytud.minute, flytud.second)
+                          
+                if (flytud > flytind):
+                    value = flytind,flytud,end,triage,date,int(timeOfDay),code,age,track,regular_duration,patient
+                    dataSorted.append(value)
         patientOld = patientId
     
     dataSorted = sorted(dataSorted,reverse=True)
-    #dataSorted = sorted(dataSorted)
+    print(dataSorted)
     
     with open(csvfileSorted, "w") as output:
         writer = csv.writer(output, lineterminator='\n')

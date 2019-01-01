@@ -11,14 +11,13 @@ from operator import attrgetter
 from datetime import datetime
 
 csvfileSorted = "./dataNewSorted2.csv"
-
-#with open("./dataNewSortedWithFast.csv") as f:
-#    reader = csv.reader(f)
     
 dataset = pd.read_csv('dataNewSorted.csv')
 
 data = dataset.iloc[:, 0:11].values
    
+print(data)
+
 # Encoding categorical data#
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 labelencoder_X = LabelEncoder()
@@ -34,29 +33,37 @@ for index, val in enumerate(data):
     numberInFront = 0
     
     # Split date up
-    dateString = val[0].split()[0].split('/')
+    dateString = val[0].split()[0].split('-')
     timeString = val[0].split()[1].split(':')   
     startTimeQueue = datetime(int(dateString[0]), int(dateString[1]), int(dateString[2]), int(timeString[0]), int(timeString[1]), int(timeString[2]))
     
-    dateString = val[2].split()[0].split('/')
-    timeString = val[2].split()[1].split(':')
+    dateString = val[1].split()[0].split('-')
+    timeString = val[1].split()[1].split(':')
     endTime = datetime(int(dateString[0]), int(dateString[1]), int(dateString[2]), int(timeString[0]), int(timeString[1]), int(timeString[2]))
     
     for row in data:
         if (val[10] == row[10]):
             continue
-
-        dateString = row[0].split()[0].split('/')
+                
+        dateString = row[0].split()[0].split('-')
         timeString = row[0].split()[1].split(':')
-        rowTimeQueue = datetime(int(dateString[0]), int(dateString[1]), int(dateString[2]), int(timeString[0]), int(timeString[1]), int(timeString[2]))
+        rowStartTime = datetime(int(dateString[0]), int(dateString[1]), int(dateString[2]), int(timeString[0]), int(timeString[1]), int(timeString[2]))
         
-        dateString = row[1].split()[0].split('/')
+        dateString = row[1].split()[0].split('-')
         timeString = row[1].split()[1].split(':')
         rowEndTime = datetime(int(dateString[0]), int(dateString[1]), int(dateString[2]), int(timeString[0]), int(timeString[1]), int(timeString[2]))
-     
-        if (rowEndTime > startTimeQueue and startTimeQueue > rowTimeQueue):
+        
+        if (startTimeQueue < rowStartTime):
+            continue
+        
+        #print("Comparing: " , startTimeQueue, " with ", rowEndTime)
+        
+        if (rowEndTime > startTimeQueue):
             numberInFront = numberInFront + 1
-     
+    
+    #print("In front of patient: ", numberInFront)
+    #print("        ")
+    
     week = -1
     timeAtDay = -1
     triage = -1
@@ -106,11 +113,15 @@ for index, val in enumerate(data):
     if (week == 'Sun'):
         week = 6
            
-    value = triage,timeAtDay,age,numberInFront,averageWaitingTime3,waitingTime
+    #value = triage,timeAtDay,age,numberInFront,averageWaitingTime3,waitingTime
+    value = startTimeQueue,endTime,triage,week,timeAtDay,age,numberInFront,averageWaitingTime3,waitingTime
     dataSorted.append(value)
+    
+dataSorted = sorted(dataSorted)
             
 with open(csvfileSorted, "w") as output:
     writer = csv.writer(output, lineterminator='\n')
     writer.writerows(dataSorted)
+
  
 
